@@ -1,0 +1,11 @@
+services:
+  bluesky-checker:
+    build:
+      context: .
+    image: cr.anon.network/bsky-handle-checker:latest
+    container_name: bluesky-checker
+    volumes:
+      - .:/app
+      - ./checkedDomains.json:/usr/src/checkedDomains.json
+    environment:
+      - NODE_ENV=production
