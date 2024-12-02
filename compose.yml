@@ -6,6 +6,6 @@ services:
     container_name: bluesky-checker
     volumes:
       - .:/app
-      - ./checkedDomains.json:/usr/src/checkedDomains.json
+      - ./data:/app/data
     environment:
       - NODE_ENV=production

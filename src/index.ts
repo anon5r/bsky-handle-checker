@@ -49,7 +49,7 @@ const domains = [
 
 // Discord WebhookのURL
 const discordWebhookUrl = 'https://discord.com/api/webhooks/1310564989953638480/mg04OHMf-QYcc09vZBVqWY2MRjWkMWORUwzyiGHaYrcJBziXdFfTXge_sEzbYMDUBMYR';
-const checkedDomainsFile = './checkedDomains.json';
+const checkedDomainsFile = './data/checkedDomains.json';
 
 // チェック済みドメインリストを読み込む
 async function loadCheckedDomains(): Promise<Set<string>> {

@@ -10,6 +10,10 @@ Bluesky handle checker
 ## How to build
 
 ```shell
+$ docker buildx build --platform linux/amd64,linux/arm64 -t cr.anon.network/bluesky-handle-checker:latest --push .
+```
+
+```shell
 $ docker compose build
 ```
 
