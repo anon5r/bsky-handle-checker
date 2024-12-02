@@ -11,4 +11,10 @@
 
 #!.yarn/cache
 .pnp.*
-/checkedDomains.json
+/data/checkedDomains.json
+.env
+/node_modules
+/dist
+/data
+
+/.idea/*.xml
