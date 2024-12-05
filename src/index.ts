@@ -61,7 +61,9 @@ async function checkHandles() {
 
       if (response.data?.did) {
         console.log(`Handle detected: ${handle}`);
-        await notifyDiscord(`Handle detected: ${handle} \nDID: ${response.data.did}`);
+        await notifyDiscord(`Handle detected: **${handle}**\n`
+          + `DID: \`${response.data.did}\`\n`
+          + `https://bsky.app/profile/${handle}`);
         checkedDomains.add(domain);
         await saveCheckedDomains(checkedDomains);
       } else {
