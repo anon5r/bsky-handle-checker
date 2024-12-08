@@ -16,7 +16,7 @@ async function loadDomains(): Promise<string[]> {
 }
 
 // Get the Discord Webhook URL from environment variables or set a default value
-const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || 'https://discord.com/api/webhooks/default_webhook';
+const discordWebhookUrl :string|null = process.env.DISCORD_WEBHOOK_URL || null;
 
 // Load the checked domain list
 async function loadCheckedDomains(): Promise<Set<string>> {
@@ -34,6 +34,8 @@ async function saveCheckedDomains(checkedDomains: Set<string>) {
 
 // Send a Discord notification
 async function notifyDiscord(message: string) {
+  if (discordWebhookUrl === null)
+    return;
   try {
     await axios.post(discordWebhookUrl, { content: message });
     console.log('Sent a notification to Discord:', message);
