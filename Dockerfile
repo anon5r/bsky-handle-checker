@@ -14,20 +14,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock tsconfig.json ./
 COPY src/ ./src/
-RUN yarn && yarn build
-
-FROM node:23-alpine
-ENV YARN_VERSION=3.6.3
-
-WORKDIR /app
-
-RUN apk update  \
-    && apk add --no-cache curl \
-    && corepack install -g yarn@${YARN_VERSION} \
-    && corepack enable yarn \
-    && yarn set version berry
-
-COPY --from=builder /app/ .
+RUN yarn install --refresh-lockfile && yarn build
 
 # アプリケーションを起動
 CMD ["yarn", "start"]

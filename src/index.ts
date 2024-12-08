@@ -42,43 +42,58 @@ async function notifyDiscord(message: string) {
   }
 }
 
+
+// Sleep function
+function sleep(ms: number): Promise<void> {
+  console.log(`Pausing for ${(ms/1000).toPrecision(1)} seconds...`);
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Check handles
 async function checkHandles() {
   const domains = await loadDomains();
   const checkedDomains = await loadCheckedDomains();
 
+  let count = 0;
   for (const domain of domains) {
     if (checkedDomains.has(domain)) {
       console.log(`Skipped domain: ${domain}`);
       continue;
     }
 
-    const handle = domain;
-    const url = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`;
+    requestHandle(checkedDomains, domain)
+    count++;
+    if (count % 20 === 0)
+      await sleep(3000);
+  }
+}
 
-    try {
-      const response = await axios.get(url);
+async function requestHandle(checkedDomains: Set<string>, handle: string) {
 
-      if (response.data?.did) {
-        console.log(`Handle detected: ${handle}`);
-        await notifyDiscord(`Handle detected: **${handle}**\n`
-          + `DID: \`${response.data.did}\`\n`
-          + `https://bsky.app/profile/${handle}`);
-        checkedDomains.add(domain);
-        await saveCheckedDomains(checkedDomains);
-      } else {
+  const url = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`;
+
+  try {
+    const response = await axios.get(url);
+
+    if (response.data?.did) {
+      console.log(`Handle detected: ${handle}`);
+      await notifyDiscord(`Handle detected: **${handle}**\n`
+        + `DID: \`${response.data.did}\`\n`
+        + `https://bsky.app/profile/${handle}`);
+      checkedDomains.add(handle);
+      await saveCheckedDomains(checkedDomains);
+    } else {
+      console.log(`Handle not found: ${handle}`);
+    }
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.data.message === 'Unable to resolve handle') {
         console.log(`Handle not found: ${handle}`);
-      }
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.data.message === 'Unable to resolve handle') {
-          console.log(`Handle not found: ${handle}`);
-        } else {
-          console.error(`API error <${domain}>: ${error.message}`, error.response?.data);
-        }
       } else {
-        console.error(`An unexpected error occurred <${domain}>: ${String(error)}`);
+        console.error(`API error <${handle}>: ${error.message}`, error.response?.data);
       }
+    } else {
+      console.error(`An unexpected error occurred <${handle}>: ${String(error)}`);
     }
   }
 }
