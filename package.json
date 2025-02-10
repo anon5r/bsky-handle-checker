@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "yarn ts-node ./src/index.ts",
     "build": "yarn tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "bot:dev": "yarn ts-node ./src/discord/command.ts",
-    "bot": "node dist/commands.js"
+    "crawl": "node dist/index.js",
+    "bot": "node dist/commands.js",
+    "dev:crawl": "yarn ts-node ./src/index.ts",
+    "dev:bot": "yarn ts-node ./src/discord/command.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^1.10.0",
