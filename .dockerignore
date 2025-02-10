@@ -1,0 +1,8 @@
+.editorconfig
+.env
+.env.example
+.gitignore
+.idea
+.yarnrc.yml
+compose.yml
+README.md
