@@ -5,18 +5,26 @@
   "scripts": {
     "dev": "yarn ts-node ./src/index.ts",
     "build": "yarn tsc -p tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "bot:dev": "yarn ts-node ./src/discord/command.ts",
+    "bot": "node dist/commands.js"
   },
   "dependencies": {
+    "@discordjs/builders": "^1.10.0",
+    "@discordjs/rest": "^2.4.2",
     "axios": "^1.7.8",
-    "fs-extra": "^11.2.0"
+    "discord-api-types": "^0.37.117",
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.4.7",
+    "fs-extra": "^11.2.0",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.4.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   },
   "packageManager": "yarn@3.6.3+sha256.08ead1821a257416e6f217e89365425bf4b6d2430c3279318bedcec1a245fff5"
 }
