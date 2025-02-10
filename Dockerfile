@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock tsconfig.json ./
 COPY src/ ./src/
-RUN yarn install --refresh-lockfile && yarn build
+RUN yarn install && yarn build
 
 # アプリケーションを起動
-CMD ["yarn", "start"]
+CMD ["yarn", "bot"]
