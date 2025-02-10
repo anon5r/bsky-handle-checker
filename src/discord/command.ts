@@ -102,6 +102,12 @@ function updatePageNumber(currentPage: number, buttonId: string): number {
   return currentPage;
 }
 
+// FQDN検証用の関数を追加
+function isValidFQDN(domain: string): boolean {
+  const fqdnRegex = /^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.)+[a-z]{2,})$/i;
+  return fqdnRegex.test(domain);
+}
+
 // スラッシュコマンドの定義
 const commands = [
   new SlashCommandBuilder()
@@ -136,75 +142,92 @@ client.once('ready', async () => {
   }
 });
 
+// コマンドハンドラー関数群
+async function handleAddDomain(interaction: ChatInputCommandInteraction) {
+  const domain = interaction.options.getString('domain', true);
+
+  if (!isValidFQDN(domain)) {
+    await interaction.reply(`${domain} は有効なドメイン名ではありません。\n例: example.com`);
+    return;
+  }
+
+  const domains = await loadDomains();
+  if (domains.includes(domain)) {
+    await interaction.reply(`${domain} は既に登録されています`);
+    return;
+  }
+
+  domains.push(domain);
+  await saveDomains(domains);
+  await interaction.reply(`${domain} を追加しました`);
+}
+
+async function handleRemoveDomain(interaction: ChatInputCommandInteraction) {
+  const domain = interaction.options.getString('domain', true);
+  const domains = await loadDomains();
+
+  const index = domains.indexOf(domain);
+  if (index === -1) {
+    await interaction.reply(`${domain} は登録されていません`);
+    return;
+  }
+
+  domains.splice(index, 1);
+  await saveDomains(domains);
+  await interaction.reply(`${domain} を削除しました`);
+}
+
+async function handleListDomains(interaction: ChatInputCommandInteraction) {
+  const domains = await loadDomains();
+  if (domains.length === 0) {
+    await interaction.reply('監視対象のドメインはありません');
+    return;
+  }
+
+  const currentPage = 1;
+  const pages = Math.ceil(domains.length / 25);
+  const embed = createPageEmbed(domains, currentPage);
+  const row = createPageButtons(currentPage, pages);
+
+  await interaction.reply({
+    embeds: [embed],
+    components: [row]
+  });
+}
+
+async function handleButtonInteraction(interaction: ButtonInteraction) {
+  const domains = await loadDomains();
+  const currentPage = getCurrentPageFromEmbed(interaction);
+  const pages = Math.ceil(domains.length / 25);
+  const newPage = updatePageNumber(currentPage, interaction.customId);
+
+  const newEmbed = createPageEmbed(domains, newPage);
+  const newButtons = createPageButtons(newPage, pages);
+
+  await interaction.update({
+    embeds: [newEmbed],
+    components: [newButtons]
+  });
+}
+
+// メインのイベントハンドラーをシンプルに
 client.on('interactionCreate', async (interaction) => {
   try {
     if (interaction.isChatInputCommand()) {
-      const { commandName, options } = interaction;
-
+      const { commandName } = interaction;
       switch (commandName) {
-        case 'add-domain': {
-          const domain = options.getString('domain', true);
-          const domains = await loadDomains();
-
-          if (domains.includes(domain)) {
-            await interaction.reply(`${domain} は既に登録されています`);
-            return;
-          }
-
-          domains.push(domain);
-          await saveDomains(domains);
-          await interaction.reply(`${domain} を追加しました`);
+        case 'add-domain':
+          await handleAddDomain(interaction);
           break;
-        }
-
-        case 'remove-domain': {
-          const domain = options.getString('domain', true);
-          const domains = await loadDomains();
-
-          const index = domains.indexOf(domain);
-          if (index === -1) {
-            await interaction.reply(`${domain} は登録されていません`);
-            return;
-          }
-
-          domains.splice(index, 1);
-          await saveDomains(domains);
-          await interaction.reply(`${domain} を削除しました`);
+        case 'remove-domain':
+          await handleRemoveDomain(interaction);
           break;
-        }
-
-        case 'list-domains': {
-          const domains = await loadDomains();
-          if (domains.length === 0) {
-            await interaction.reply('監視対象のドメインはありません');
-            return;
-          }
-
-          const currentPage = 1;
-          const pages = Math.ceil(domains.length / 25);
-          const embed = createPageEmbed(domains, currentPage);
-          const row = createPageButtons(currentPage, pages);
-
-          await interaction.reply({
-            embeds: [embed],
-            components: [row]
-          });
+        case 'list-domains':
+          await handleListDomains(interaction);
           break;
-        }
       }
     } else if (interaction.isButton()) {
-      const domains = await loadDomains();
-      const currentPage = getCurrentPageFromEmbed(interaction);
-      const pages = Math.ceil(domains.length / 25);
-      const newPage = updatePageNumber(currentPage, interaction.customId);
-
-      const newEmbed = createPageEmbed(domains, newPage);
-      const newButtons = createPageButtons(newPage, pages);
-
-      await interaction.update({
-        embeds: [newEmbed],
-        components: [newButtons]
-      });
+      await handleButtonInteraction(interaction);
     }
   } catch (error) {
     console.error('エラー:', error);
@@ -213,10 +236,11 @@ client.on('interactionCreate', async (interaction) => {
         content: 'エラーが発生しました。もう一度お試しください。',
         components: []
       });
-    } else if (interaction.isCommand() && interaction.isRepliable()) {
+    } else if (interaction.isRepliable()) {
       await interaction.reply('エラーが発生しました。もう一度お試しください。');
     }
   }
 });
+
 
 client.login(TOKEN);
