@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-    image: cr.anon.network/bsky-handle-checker:latest
+    image: bsky-handle-checker:latest
     container_name: bluesky-checker
     volumes:
       - .:/app

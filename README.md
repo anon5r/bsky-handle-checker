@@ -33,7 +33,7 @@ Bluesky上に特定ドメインのハンドルが存在するか確認します�
 ## How to build
 
 ```shell
-docker buildx build --platform linux/amd64,linux/arm64 -t <your-docker-registory>:latest --push .
+docker buildx build --platform linux/amd64,linux/arm64 -t <your-docker-registory>:latest -f Dockerfile --push .
 ```
 
 ```shell
