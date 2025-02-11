@@ -1,20 +1,29 @@
 FROM node:23-alpine AS builder
-ENV YARN_VERSION=3.6.3
 
 # 必要なツールをインストール
 RUN apk update \
     && apk add --no-cache curl \
-    && corepack install -g yarn@${YARN_VERSION} \
-    && corepack enable yarn \
-    && yarn set version berry
+    && corepack enable \
+    && corepack prepare pnpm@latest --activate \
+    && pnpm fetch
 
 
 # 作業ディレクトリ
 WORKDIR /app
 
-COPY package.json yarn.lock tsconfig.json ./
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+RUN pnpm install --offline
 COPY src/ ./src/
-RUN yarn install && yarn build
+RUN pnpm build
+
+FROM node:23-alpine AS runner
+# 作業ディレクトリ
+WORKDIR /app
+
+#COPY src/ ./src/
+COPY --from=builder /app/dist /app/dist
+COPY ./package.json ./pnpm-lock.yaml /app/
+
 
 # アプリケーションを起動
 CMD ["yarn", "bot"]

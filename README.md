@@ -55,7 +55,18 @@ docker run -e DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/XXXXXXX/ -v .
 ## How to run
 
 ```shell
-$ npm i
-$ npm run build
-$ npm run start
+$ pnpm i
+$ pnpm run build
+```
+
+### Crawling handles
+
+```shell
+$ pnpm run crawl
+```
+
+### Run as discord slash command server
+
+```shell
+$ pnpm run bot
 ```

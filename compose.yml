@@ -1,5 +1,5 @@
 services:
-  bluesky-checker:
+  app:
     build:
       context: .
     image: cr.anon.network/bsky-handle-checker:latest
