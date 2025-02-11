@@ -8,6 +8,8 @@ const checkedDomainsFile = './data/checkedDomains.json';
 // Load the domain list from the JSON file
 async function loadDomains(): Promise<string[]> {
   try {
+    if (!await fs.pathExists(domainsFilePath))
+      await fs.outputJSON(domainsFilePath, []);
     return await fs.readJSON(domainsFilePath);
   } catch (error) {
     console.error("An error occurred while loading the domain list:", error);

@@ -40,7 +40,9 @@ COPY --from=builder /usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY ./package.json ./pnpm-lock.yaml /app/
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && corepack enable \
-    && corepack prepare pnpm@latest --activate
+    && corepack prepare pnpm@latest --activate \
+    && pnpm install --prod \
+    && pnpm cache delete
 
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
