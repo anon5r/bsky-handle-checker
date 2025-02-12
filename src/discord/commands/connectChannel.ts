@@ -9,12 +9,12 @@ import { saveConnectChannel } from '../utils/channelConfig';
 
 export const connectChannelCommand = new SlashCommandBuilder()
   .setName('connect-channel')
-  .setDescription('Botの投稿先チャンネルを紐付け')
+  .setDescription('Botの連携先チャンネルを設定します')
   // テキストチャンネルを指定必須に
   .addChannelOption((option) =>
     option
       .setName('channel')
-      .setDescription('投稿先にしたいテキストチャンネル')
+      .setDescription('連携先にしたいテキストチャンネル')
       .setRequired(true)
       .addChannelTypes(ChannelType.GuildText)
   )
@@ -39,7 +39,7 @@ export async function runConnectChannel(interaction: ChatInputCommandInteraction
   try {
     await saveConnectChannel(guildId, channel.id);
     await interaction.reply(
-      `チャンネル <#${channel.id}> をハンドル検出時の投稿先として設定しました！`
+      `チャンネル <#${channel.id}> をハンドル検出時の連携先として設定しました！`
     );
   } catch (err) {
     console.error('[connectChannel] Error saving channel info:', err);

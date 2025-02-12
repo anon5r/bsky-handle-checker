@@ -16,15 +16,18 @@ async function registerCommands() {
     await rest.put(Routes.applicationCommands(CLIENT_ID), {
       body: commandDefs.map(cmd => cmd.toJSON()),
     });
-    console.log('✔ スラッシュコマンド登録完了');
+    for (const command of commandDefs) {
+      console.log(`✔ Command: \`/${command.name}\``);
+    }
+    console.log('✅ スラッシュコマンド登録完了');
   } catch (error) {
     console.error('❌ スラッシュコマンド登録エラー:', error);
   }
 }
 
-client.once('ready', () => {
-  console.log(`Logged in as ${client.user?.tag}`);
-  registerCommands();
+client.once('ready', async () => {
+  console.log(`Logged in as "${client.user?.tag}"`);
+  await registerCommands();
 });
 
 client.on('interactionCreate', async (interaction: Interaction) => {

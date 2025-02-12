@@ -2,6 +2,7 @@ import { addDomainCommand, runAddDomain } from './addDomain';
 import { removeDomainCommand, runRemoveDomain } from './removeDomain';
 import { listDomainsCommand, runListDomains } from './listDomains';
 import { connectChannelCommand, runConnectChannel } from "./connectChannel";
+import { disconnectChannelCommand, runDisconnectChannel } from "./disconnectChannel";
 // 他のコマンドが増えたらここにimport追加
 
 export const commandDefs = [
@@ -9,6 +10,7 @@ export const commandDefs = [
   removeDomainCommand,
   listDomainsCommand,
   connectChannelCommand,
+  disconnectChannelCommand
 ];
 
 /**
@@ -19,4 +21,5 @@ export const commandHandlers = {
   'remove-domain': runRemoveDomain,
   'list-domains': runListDomains,
   'connect-channel': runConnectChannel,
+  'disconnect-channel': runDisconnectChannel,
 };
