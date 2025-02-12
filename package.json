@@ -6,10 +6,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "bot": "node dist/discord/command.js",
+    "bot": "node dist/discord/bot.js",
     "guilds": "ts-node dist/discord/listGuilds.ts",
     "dev": "pnpm dlx ts-node ./src/index.ts",
-    "dev:bot": "pnpm dlx ts-node ./src/discord/command.ts",
+    "dev:bot": "pnpm dlx ts-node ./src/discord/bot.ts",
     "dev:guilds": "ts-node ./src/discord/listGuilds.ts"
   },
   "workspaces": {
