@@ -24,7 +24,7 @@ interface MigrationRow {
 
 export const migrator = new Umzug({
   migrations: {
-    glob: ['migrations/*.ts', { cwd: __dirname }],
+    glob: ['migrations/*.{ts,js}', { cwd: __dirname }],
     resolve: ({ name, path, context }) => {
       const migration = require(path!);
       return {
