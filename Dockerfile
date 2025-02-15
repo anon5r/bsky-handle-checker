@@ -1,8 +1,8 @@
 FROM node:23-alpine AS builder
 
-# 必要なツールをインストール
+# パッケージのインストール
 RUN apk update \
-    && apk add --no-cache curl jq \
+    && apk add --no-cache curl jq sqlite sqlite-libs python3 make g++ \
     && corepack enable \
     && corepack prepare pnpm@latest --activate \
     && pnpm fetch
@@ -38,7 +38,9 @@ WORKDIR /app
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY ./package.json ./pnpm-lock.yaml /app/
-RUN chmod +x /usr/local/bin/entrypoint.sh \
+RUN apk update \
+    && apk add --no-cache sqlite sqlite-libs \
+    && chmod +x /usr/local/bin/entrypoint.sh \
     && corepack enable \
     && corepack prepare pnpm@latest --activate \
     && pnpm install --prod \
