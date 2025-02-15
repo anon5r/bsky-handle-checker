@@ -22,13 +22,26 @@ jobs:
       - name: Set Docker tags
         id: meta
         run: |
-          TAGS="${{ env.REGISTRY_URL }}/${{ env.IMAGE_TAG }}:${{ github.ref_name }}"
+          GHCR_TAG="ghcr.io/${{ github.actor }}/${{ env.IMAGE_TAG }}:${{ github.ref_name }}"
+          PRIVATE_TAG="${{ env.REGISTRY_URL }}/${{ env.IMAGE_TAG }}:${{ github.ref_name }}"
+
+          TAGS="$GHCR_TAG,$PRIVATE_TAG"
+
           if [[ "${{ github.ref_name }}" == "main" ]]; then
+            TAGS="$TAGS,ghcr.io/${{ github.actor }}/${{ env.IMAGE_TAG }}:latest"
             TAGS="$TAGS,${{ env.REGISTRY_URL }}/${{ env.IMAGE_TAG }}:latest"
           fi
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
-      - name: Login to Container Registry
+          echo "tags=$TAGS" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Private Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY_URL }}
@@ -41,17 +54,19 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.tags }}
 
       - name: Set labels
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY_URL }}/${{ env.IMAGE_TAG }}:${{ github.ref_name }}
+          images: |
+            ghcr.io/${{ github.actor }}/${{ env.IMAGE_TAG }}
+            ${{ env.REGISTRY_URL }}/${{ env.IMAGE_TAG }}
           labels: |
             org.opencontainers.image.authors=${{ github.repository_owner }}
             org.opencontainers.image.title=${{ github.repository }}
-            org.opencontainers.image.description='Bluesky handle cheker'
-            org.opencontainers.image.source=${{ github.repository_url }}/blob/${{ github.sha }}/Dockerfile
+            org.opencontainers.image.description='Bluesky handle checker'
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/Dockerfile
             org.opencontainers.image.version=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.created }}
             org.opencontainers.image.revision=${{ github.sha }}
