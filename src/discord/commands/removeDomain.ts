@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { loadDomains, saveDomains } from '../utils/domainUtils';
+import { loadDomains, removeDomain } from '../utils/domainUtils';
 
 export const removeDomainCommand = new SlashCommandBuilder()
   .setName('remove-domain')
@@ -11,28 +11,27 @@ export const removeDomainCommand = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-/**
- * /remove-domain 実行時の処理
- */
 export async function runRemoveDomain(interaction: ChatInputCommandInteraction) {
-  const guildId = interaction.guildId;
-  if (!guildId) {
-    await interaction.reply('このコマンドはギルド内でのみ実行できます。');
-    return;
+  try {
+    const guildId = interaction.guildId;
+    if (!guildId) {
+      await interaction.reply('このコマンドはギルド内でのみ実行できます。');
+      return;
+    }
+
+    const domain = interaction.options.getString('domain', true).trim();
+    const domains = await loadDomains(guildId);
+
+    if (!domains.includes(domain)) {
+      await interaction.reply({ content: `\`${domain}\` は登録されていません。` });
+      return;
+    }
+
+    await removeDomain(guildId, domain);
+    await interaction.reply(`ドメイン \`${domain}\` を削除しました。`);
+  } catch (error) {
+    console.error('❌ remove-domain実行エラー:', error);
+    process.stderr.write(`remove-domain実行エラー: ${error}\n`);
+    throw error;
   }
-
-  const domain = interaction.options.getString('domain', true).trim();
-  const domains = await loadDomains(guildId);
-
-  const index = domains.indexOf(domain);
-  if (index === -1) {
-    await interaction.reply({ content: `\`${domain}\` は登録されていません。` });
-    return;
-  }
-
-  // 削除
-  domains.splice(index, 1);
-  await saveDomains(guildId, domains);
-
-  await interaction.reply(`ドメイン \`${domain}\` を削除しました。`);
 }

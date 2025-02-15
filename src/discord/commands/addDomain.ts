@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { loadDomains, saveDomains, isValidFQDN } from '../utils/domainUtils';
+import { addDomain, isValidFQDN } from '../utils/domainUtils';
 
 export const addDomainCommand = new SlashCommandBuilder()
   .setName('add-domain')
@@ -11,32 +11,26 @@ export const addDomainCommand = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-/**
- * /add-domain 実行時の処理
- */
 export async function runAddDomain(interaction: ChatInputCommandInteraction) {
-  // ギルド内でのみ実行可
-  const guildId = interaction.guildId;
-  if (!guildId) {
-    await interaction.reply('このコマンドはサーバー内でのみ使用できます');
-    return;
+  try {
+    const guildId = interaction.guildId;
+    if (!guildId) {
+      await interaction.reply('このコマンドはサーバー内でのみ使用できます');
+      return;
+    }
+
+    const domain = interaction.options.getString('domain', true).trim();
+
+    if (!isValidFQDN(domain)) {
+      await interaction.reply(`${domain} は有効なドメイン名ではありません。\n例: example.com`);
+      return;
+    }
+
+    await addDomain(guildId, domain);
+    await interaction.reply(`\`${domain}\`を追加しました`);
+  } catch (error) {
+    console.error('❌ add-domain実行エラー:', error);
+    process.stderr.write(`add-domain実行エラー: ${error}\n`);
+    throw error;
   }
-
-  const domain = interaction.options.getString('domain', true);
-
-  if (!isValidFQDN(domain)) {
-    await interaction.reply(`${domain} は有効なドメイン名ではありません。\n例: example.com`);
-    return;
-  }
-
-  const domains = await loadDomains(guildId);
-  if (domains.includes(domain)) {
-    await interaction.reply(`\`${domain}\` は既に登録されています`);
-    return;
-  }
-
-  domains.push(domain);
-  await saveDomains(guildId, domains);
-  await interaction.reply(`\`${domain}\`を追加しました`);
 }
-
