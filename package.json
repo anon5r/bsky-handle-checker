@@ -13,7 +13,8 @@
     "dev": "pnpm dlx ts-node ./src/index.ts",
     "dev:start": "pnpm dlx ts-node ./src/index.ts",
     "dev:bot": "pnpm dlx ts-node ./src/discord/bot.ts",
-    "dev:guilds": "ts-node ./src/discord/listGuilds.ts"
+    "dev:guilds": "ts-node ./src/discord/listGuilds.ts",
+    "import-domains": "ts-node src/scripts/importDomainsFromJson.ts"
   },
   "workspaces": {
     "packages": [
@@ -37,7 +38,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
