@@ -13,6 +13,10 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 async function registerCommands() {
   const rest = new REST({ version: '10' }).setToken(TOKEN);
   try {
+    if (commandDefs.length === 0) {
+      console.error('❌ スラッシュコマンドが登録されていません。');
+      throw new Error('No commands to register');
+    }
     await rest.put(Routes.applicationCommands(CLIENT_ID), {
       body: commandDefs.map(cmd => cmd.toJSON()),
     });
@@ -22,6 +26,7 @@ async function registerCommands() {
     console.log('✅ スラッシュコマンド登録完了');
   } catch (error) {
     console.error('❌ スラッシュコマンド登録エラー:', error);
+    process.stderr.write(`スラッシュコマンド登録エラー: ${error}\n`);
   }
 }
 
@@ -33,16 +38,25 @@ client.once('ready', async () => {
 client.on('interactionCreate', async (interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  // コマンド名に対応するハンドラを呼び出す
   const handler = commandHandlers[interaction.commandName as keyof typeof commandHandlers];
   if (handler) {
     try {
       await handler(interaction);
     } catch (error) {
-      console.error(error);
+      console.error(`❌ コマンド実行エラー [${interaction.commandName}]:`, error);
+      process.stderr.write(`コマンド実行エラー [${interaction.commandName}]: ${error}\n`);
       await interaction.reply({ content: 'エラーが発生しました。', ephemeral: true });
     }
   }
 });
 
-client.login(TOKEN);
+// エラーイベントのハンドリングを追加
+client.on('error', (error) => {
+  console.error('❌ Discord クライアントエラー:', error);
+  process.stderr.write(`Discord クライアントエラー: ${error}\n`);
+});
+
+client.login(TOKEN).catch(error => {
+  console.error('❌ ログインエラー:', error);
+  process.stderr.write(`ログインエラー: ${error}\n`);
+});

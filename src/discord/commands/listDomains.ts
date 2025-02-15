@@ -18,24 +18,31 @@ export const listDomainsCommand = new SlashCommandBuilder()
  * /list-domains 実行時の処理
  */
 export async function runListDomains(interaction: ChatInputCommandInteraction) {
-  const guildId = interaction.guildId;
-  if (!guildId) {
-    await interaction.reply('このコマンドはギルド内でのみ実行できます。');
-    return;
+  try {
+    const guildId = interaction.guildId;
+    if (!guildId) {
+      console.error('❌ Guild IDが取得できません');
+      await interaction.reply('このコマンドはサーバー内でのみ実行できます。');
+      return;
+    }
+
+    const domains = await loadDomains(guildId);
+    const totalPages = Math.ceil(domains.length / itemsPerPage) || 1;
+
+    const embed = createPageEmbed(domains, itemsPerPage, 1);
+    const row = createPageButtons(1, totalPages);
+
+    await interaction.reply({
+      embeds: [embed],
+      components: [row],
+    });
+  } catch (error) {
+    console.error('❌ list-domains実行エラー:', error);
+    process.stderr.write(`list-domains実行エラー: ${error}\n`);
+    throw error;
   }
-
-  const domains = await loadDomains(guildId);
-  const totalPages = Math.ceil(domains.length / itemsPerPage) || 1;
-
-  // 1ページ目のEmbed作成
-  const embed = createPageEmbed(domains, itemsPerPage, 1);
-  const row = createPageButtons(1, totalPages);
-
-  await interaction.reply({
-    embeds: [embed],
-    components: [row],
-  });
 }
+
 
 // ページEmbedの作成 (抜粋サンプル)
 function createPageEmbed(domains: string[], itemsPerPage: number, page: number): EmbedBuilder {
