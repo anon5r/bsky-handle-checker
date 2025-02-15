@@ -5,7 +5,7 @@ import {
   ChannelType,
   EmbedBuilder,
 } from 'discord.js';
-import { saveConnectChannel, clearConnectChannel, getConnectChannelId } from '../utils/channelConfig';
+import { connectChannel, disconnectChannel, getConnectChannelId } from '../utils/channelConfig';
 
 export const channelCommand = new SlashCommandBuilder()
   .setName('channel')
@@ -49,12 +49,12 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
     switch (subcommand) {
       case 'connect': {
         const channel = interaction.options.getChannel('channel', true);
-        await saveConnectChannel(guildId, channel.id);
+        await connectChannel(guildId, channel.id);
         await interaction.reply(`通知先チャンネルを <#${channel.id}> に設定しました。`);
         break;
       }
       case 'disconnect': {
-        await clearConnectChannel(guildId);
+        await disconnectChannel(guildId);
         await interaction.reply('通知先チャンネル設定を解除しました。');
         break;
       }
