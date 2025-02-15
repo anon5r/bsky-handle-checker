@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, REST, Routes, Interaction } from 'discord.js';
 import dotenv from 'dotenv';
 import { commandDefs, commandHandlers } from './commands';
+import { handlePageButton } from './commands/listDomains';
 
 dotenv.config();
 
@@ -36,16 +37,19 @@ client.once('ready', async () => {
 });
 
 client.on('interactionCreate', async (interaction: Interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const handler = commandHandlers[interaction.commandName as keyof typeof commandHandlers];
-  if (handler) {
-    try {
-      await handler(interaction);
-    } catch (error) {
-      console.error(`❌ コマンド実行エラー [${interaction.commandName}]:`, error);
-      process.stderr.write(`コマンド実行エラー [${interaction.commandName}]: ${error}\n`);
-      await interaction.reply({ content: 'エラーが発生しました。', ephemeral: true });
+  if (interaction.isChatInputCommand()) {
+    const handler = commandHandlers[interaction.commandName as keyof typeof commandHandlers];
+    if (handler) {
+      try {
+        await handler(interaction);
+      } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'エラーが発生しました。', ephemeral: true });
+      }
+    }
+  } else if (interaction.isButton()) {
+    if (interaction.customId === 'next_page' || interaction.customId === 'prev_page') {
+      await handlePageButton(interaction);
     }
   }
 });

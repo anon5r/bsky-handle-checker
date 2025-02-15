@@ -1,11 +1,7 @@
-import { Database, Statement } from 'better-sqlite3';
+import { Statement } from 'better-sqlite3';
 import psl from "psl";
 import { db } from '../../database';
 
-interface Domain {
-  id: number;
-  domain: string;
-}
 
 interface DomainId {
   id: number;
@@ -15,6 +11,10 @@ interface DomainResult {
   domain: string;
 }
 
+/**
+ * ドメインをロードする
+ * @param guildId
+ */
 export async function loadDomains(guildId: string): Promise<string[]> {
   const stmt = db.prepare(`
     SELECT d.domain 
@@ -27,7 +27,47 @@ export async function loadDomains(guildId: string): Promise<string[]> {
   return domains.map(row => row.domain);
 }
 
+/**
+ * ドメインのページネーションを取得する
+ * @param guildId
+ * @param page
+ * @param itemsPerPage
+ */
+export async function loadDomainsWithPagination(guildId: string, page: number, itemsPerPage: number): Promise<{ domains: string[], total: number }> {
+  const offset = (page - 1) * itemsPerPage;
 
+  const totalStmt = db.prepare(`
+      SELECT COUNT(DISTINCT d.domain) as total
+      FROM domains d
+               JOIN guild_domains gd ON d.id = gd.domain_id
+      WHERE gd.guild_id = ?
+  `) as Statement<[string], { total: number }>;
+
+  const domainsStmt = db.prepare(`
+      SELECT d.domain
+      FROM domains d
+               JOIN guild_domains gd ON d.id = gd.domain_id
+      WHERE gd.guild_id = ?
+      ORDER BY d.domain
+      LIMIT ? OFFSET ?
+  `) as Statement<[string, number, number], DomainResult>;
+
+  const totalResult = totalStmt.get(guildId);
+  const total = totalResult ? totalResult.total : 0;
+  const domains = domainsStmt.all(guildId, itemsPerPage, offset);
+
+  return {
+    domains: domains.map(row => row.domain),
+    total
+  };
+}
+
+
+/**
+ * ドメインを追加する
+ * @param guildId
+ * @param domain
+ */
 export async function addDomain(guildId: string, domain: string): Promise<void> {
   db.transaction(() => {
     const insertStmt = db.prepare(`
@@ -52,6 +92,11 @@ export async function addDomain(guildId: string, domain: string): Promise<void> 
   })();
 }
 
+/**
+ * ドメインを削除する
+ * @param guildId
+ * @param domain
+ */
 export async function removeDomain(guildId: string, domain: string): Promise<void> {
   db.transaction(() => {
     const selectStmt = db.prepare(
@@ -82,7 +127,10 @@ export async function removeDomain(guildId: string, domain: string): Promise<voi
   })();
 }
 
-
+/**
+ * 有効なFQDNかどうかをチェックする
+ * @param domain
+ */
 export function isValidFQDN(domain: string): boolean {
   const fqdnRegex = /^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.)+[a-z]{2,})$/i;
   if (!fqdnRegex.test(domain)) {

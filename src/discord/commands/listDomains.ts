@@ -1,12 +1,13 @@
 import {
-  SlashCommandBuilder,
-  ChatInputCommandInteraction,
-  EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  SlashCommandBuilder,
 } from 'discord.js';
-import { loadDomains } from '../utils/domainUtils';
+import {loadDomainsWithPagination} from '../utils/domainUtils';
 
 const itemsPerPage = 30;
 
@@ -16,25 +17,26 @@ export const listDomainsCommand = new SlashCommandBuilder()
 
 /**
  * /list-domains 実行時の処理
+ * @param interaction
  */
 export async function runListDomains(interaction: ChatInputCommandInteraction) {
   try {
     const guildId = interaction.guildId;
     if (!guildId) {
-      console.error('❌ Guild IDが取得できません');
-      await interaction.reply('このコマンドはサーバー内でのみ実行できます。');
+      await interaction.reply('このコマンドはギルド内でのみ実行できます。');
       return;
     }
 
-    const domains = await loadDomains(guildId);
-    const totalPages = Math.ceil(domains.length / itemsPerPage) || 1;
+    const page = 1;
+    const { domains, total } = await loadDomainsWithPagination(guildId, page, itemsPerPage);
+    const totalPages = Math.ceil(total / itemsPerPage);
 
-    const embed = createPageEmbed(domains, itemsPerPage, 1);
-    const row = createPageButtons(1, totalPages);
+    const embed = createPageEmbed(domains, total, page, totalPages);
+    const row = createPageButtons(page, totalPages);
 
     await interaction.reply({
       embeds: [embed],
-      components: [row],
+      components: totalPages > 1 ? [row] : [],
     });
   } catch (error) {
     console.error('❌ list-domains実行エラー:', error);
@@ -43,21 +45,56 @@ export async function runListDomains(interaction: ChatInputCommandInteraction) {
   }
 }
 
+/**
+ * ページネーションのボタンを作成
+ * @param interaction
+ */
+export async function handlePageButton(interaction: ButtonInteraction) {
+  try {
+    const guildId = interaction.guildId;
+    if (!guildId) return;
 
-// ページEmbedの作成 (抜粋サンプル)
-function createPageEmbed(domains: string[], itemsPerPage: number, page: number): EmbedBuilder {
-  const startIndex = (page - 1) * itemsPerPage;
-  const pageItems = domains.slice(startIndex, startIndex + itemsPerPage);
-  const totalPages = Math.ceil(domains.length / itemsPerPage) || 1;
+    const currentPage = parseInt(interaction.message.embeds[0].footer?.text.split('/')[0].split(' ')[1] || '1');
+    const newPage = interaction.customId === 'next_page' ? currentPage + 1 : currentPage - 1;
 
+    const { domains, total } = await loadDomainsWithPagination(guildId, newPage, itemsPerPage);
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    const embed = createPageEmbed(domains, total, newPage, totalPages);
+    const row = createPageButtons(newPage, totalPages);
+
+    await interaction.update({
+      embeds: [embed],
+      components: totalPages > 1 ? [row] : [],
+    });
+  } catch (error) {
+    console.error('❌ ページ遷移エラー:', error);
+    process.stderr.write(`ページ遷移エラー: ${error}\n`);
+    throw error;
+  }
+}
+
+/**
+ * ページのEmbedを作成
+ * @param domains
+ * @param total
+ * @param page
+ * @param totalPages
+ */
+function createPageEmbed(domains: string[], total: number, page: number, totalPages: number): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle('監視対象ドメイン一覧')
-    .setDescription(`${domains.length} 件のドメイン`)
-    .addFields({ name: 'ページ内ドメイン', value: pageItems.join('\n') || 'なし' })
+    .setDescription(`${total} 件のドメイン`)
+    .addFields({ name: 'ページ内ドメイン', value: domains.join('\n') || 'なし' })
     .setFooter({ text: `ページ ${page}/${totalPages}` });
 }
 
-// ページボタンの作成例
+
+/**
+ * ページネーションのボタンを作成
+ * @param currentPage
+ * @param totalPages
+ */
 function createPageButtons(
   currentPage: number,
   totalPages: number
