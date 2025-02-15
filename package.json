@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "migrate": "ts-node src/database/migrate.ts",
+    "migrate": "node dist/database/migrate.js",
     "migrate:create": "ts-node src/database/create-migration.ts",
     "bot": "node dist/discord/bot.js",
     "guilds": "ts-node dist/discord/listGuilds.js",
