@@ -6,13 +6,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
+    "crawl": "node dist/index.js",
     "migrate": "node dist/database/migrate.js",
     "migrate:create": "ts-node src/database/create-migration.ts",
     "bot": "node dist/discord/bot.js",
     "guilds": "ts-node dist/discord/listGuilds.js",
     "import-domains": "node dist/scripts/importDomainsFromJson.js",
     "dev": "pnpm dlx ts-node ./src/index.ts",
-    "dev:start": "pnpm dlx ts-node ./src/index.ts",
+    "dev:crawl": "pnpm dlx ts-node ./src/index.ts",
     "dev:bot": "pnpm dlx ts-node ./src/discord/bot.ts",
     "dev:guilds": "pnpm dlx ts-node ./src/discord/listGuilds.ts",
     "dev:import-domains": "pnpm dlx ts-node src/scripts/importDomainsFromJson.ts"

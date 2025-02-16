@@ -5,7 +5,12 @@ import {
   ChannelType,
   EmbedBuilder,
 } from 'discord.js';
-import { connectChannel, disconnectChannel, getConnectChannelId } from '../utils/channelConfig';
+import {
+  connectChannel,
+  disconnectChannel,
+  getConnectChannelId,
+  isConnectChannelRegistered
+} from '../utils/channelConfig';
 
 export const channelCommand = new SlashCommandBuilder()
   .setName('channel')
@@ -40,31 +45,44 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
   try {
     const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guildId;
-
-    if (!guildId) {
+    const guild = interaction.guild;
+    if (!guildId || !guild) {
       await interaction.reply('このコマンドはインストールされたサーバー内でのみ実行できます。');
       return;
     }
 
+
     switch (subcommand) {
       case 'connect': {
+        if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
+          await interaction.reply('⚠️ チャンネルの管理権限が必要です。');
+          return;
+        }
         const channel = interaction.options.getChannel('channel', true);
         await connectChannel(guildId, channel.id);
         await interaction.reply(`通知先チャンネルを <#${channel.id}> に設定しました。`);
         break;
       }
       case 'disconnect': {
+        if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
+          await interaction.reply('⚠️ チャンネルの管理権限が必要です。');
+          return;
+        }
         await disconnectChannel(guildId);
         await interaction.reply('通知先チャンネル設定を解除しました。');
         break;
       }
       case 'current': {
+        if (!await isConnectChannelRegistered(guildId)) {
+          await interaction.reply('⚠️ 通知先チャンネルは設定されていません。');
+          break;
+        }
         const channelId = await getConnectChannelId(guildId);
         const embed = new EmbedBuilder()
           .setTitle('通知チャンネル設定')
           .setDescription(channelId
             ? `現在の通知先: <#${channelId}>`
-            : '通知先チャンネルは設定されていません');
+            : '⚠️ 通知先チャンネルは設定されていません');
         await interaction.reply({ embeds: [embed] });
         break;
       }

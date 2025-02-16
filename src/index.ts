@@ -1,43 +1,56 @@
-import fs from 'fs';
-import { checkHandles } from './utils/handleCrawler';
+// src/index.ts
+import { CrawlService } from './services/crawlService';
+import { NotificationService } from './services/notificationService';
+import 'dotenv/config';
 
-(async () => {
-  // guildIdなど取得
-  const guildId = process.argv[2].trim() ?? null;
+async function main() {
+  const guildId = process.argv[2]?.trim() ?? null;
+  const crawlService = new CrawlService();
+  const notificationService = new NotificationService();
 
-  // ファイルパスを組み立てる
-  let domainsFilePath: string;
-  let checkedDomainsFilePath: string;
-  if (guildId) {
-    if (!guildId.match(/^\d+$/)) {
-      console.error('Invalid guild ID format.');
-      process.exit(1);
+  try {
+    // 初期化
+    await notificationService.initialize();
+
+    // ドメイン取得とクロール
+    const domains = await crawlService.getDomains(guildId ?? undefined);
+    if (domains.length === 0) {
+      console.log('No domains found to check.');
+      return;
     }
-    // file doesn't exist
-    if (!fs.existsSync(`./data/guilds/${guildId}`)) {
-      console.error('Guild data does not exist.');
-      process.exit(1);
-    }
-    domainsFilePath = `./data/guilds/${guildId}/domains.json`;
-    checkedDomainsFilePath = `./data/guilds/${guildId}/checkedDomains.json`;
-  } else {
-    domainsFilePath = './data/domains.json';
-    checkedDomainsFilePath = './data/checkedDomains.json';
-    if (!process.env.DISCORD_WEBHOOK_URL) {
-      console.error('DISCORD_WEBHOOK_URL is not set.');
-      process.exit(1);
-    }
-  }
 
-  // Webhook URLを環境変数から取得
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL ?? null;
+    // クロール実行
+    const results = await crawlService.processDomainsCheck(domains);
 
-  // 処理を実行
-  try
-  {
-    await checkHandles(domainsFilePath, checkedDomainsFilePath, webhookUrl);
-    console.log('Check completed successfully.');
+    // 通知チャンネル取得
+    const channelId = await notificationService.getChannelId(guildId ?? undefined);
+
+    // 結果を整形して通知
+    const messageContent = formatResultsMessage(results);
+    const notificationResult = await notificationService.sendNotification(
+      messageContent,
+      channelId
+    );
+
+    if (!notificationResult.success) {
+      console.error('Failed to send notification:', notificationResult.error);
+    }
+
+    console.log('Process completed successfully.');
+
   } catch (error) {
     console.error('Error:', error);
+  } finally {
+    // リソースのクリーンアップ
+    crawlService.close();
+    await notificationService.close();
   }
-})();
+}
+
+function formatResultsMessage(results: any[]): string {
+  // 結果をDiscordメッセージ形式に整形するロジック
+  // ...
+  return '';
+}
+
+main().catch(console.error);

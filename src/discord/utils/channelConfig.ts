@@ -8,10 +8,10 @@ export async function getConnectChannelId(guildId: string): Promise<string | nul
   return result ? result.channel_id : null;
 }
 
-export async function isConnectChannelRegistered(guildId: string, channelId: string): Promise<boolean> {
+export async function isConnectChannelRegistered(guildId: string): Promise<boolean> {
   const result = db.prepare(
-    'SELECT channel_id FROM guild_channels WHERE guild_id = ? AND channel_id = ?'
-  ).get(guildId, channelId);
+    'SELECT channel_id FROM guild_channels WHERE guild_id = ?'
+  ).get(guildId);
 
   return !!result;
 }
