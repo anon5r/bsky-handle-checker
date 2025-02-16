@@ -102,15 +102,22 @@ export class CrawlService {
       return;
     }
     const update = this.db.prepare(`
-      UPDATE domains SET available = ?, found_at = ?, last_checked_at = CURRENT_TIMESTAMP
+      UPDATE domains SET available = ?, found_at = ?, 
+                         last_checked_at = CURRENT_TIMESTAMP, did = ?
       WHERE domain = ?
     `);
 
     this.db.transaction(() => {
       for (const result of results) {
+        if (result.error) {
+          console.error(`Error checking domain ${result.domain}: ${result.error}`);
+          continue;
+        }
         update.run(
           (result.available ? 1 : 0),
           (result.available ? (new Date).toLocaleString('sv-SE',{timeZone: 'UTC'}) : null),
+          result.did,
+          // WHERE clause
           result.domain
         );
       }
