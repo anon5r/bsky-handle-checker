@@ -13,7 +13,7 @@ const itemsPerPage = 30;
 
 export const listDomainsCommand = new SlashCommandBuilder()
   .setName('list-domains')
-  .setDescription('監視対象ドメイン一覧を表示');
+  .setDescription('List of monitored domains');
 
 /**
  * /list-domains 実行時の処理
@@ -23,7 +23,7 @@ export async function runListDomains(interaction: ChatInputCommandInteraction) {
   try {
     const guildId = interaction.guildId;
     if (!guildId) {
-      await interaction.reply('このコマンドはギルド内でのみ実行できます。');
+      await interaction.reply('This command can only be used in a guild.');
       return;
     }
 
@@ -83,10 +83,10 @@ export async function handlePageButton(interaction: ButtonInteraction) {
  */
 function createPageEmbed(domains: string[], total: number, page: number, totalPages: number): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle('監視対象ドメイン一覧')
-    .setDescription(`${total} 件のドメイン`)
-    .addFields({ name: 'ページ内ドメイン', value: domains.join('\n') || 'なし' })
-    .setFooter({ text: `ページ ${page}/${totalPages}` });
+    .setTitle('List of Monitored Domains')
+    .setDescription(`Total ${total}`)
+    .addFields({ name: 'Monitored domains', value: domains.join('\n') || 'None' })
+    .setFooter({ text: `Page ${page}/${totalPages}` });
 }
 
 
@@ -103,12 +103,12 @@ function createPageButtons(
     .addComponents(
       new ButtonBuilder()
         .setCustomId('prev_page')
-        .setLabel('前へ')
+        .setLabel('« Prev')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(currentPage <= 1),
       new ButtonBuilder()
         .setCustomId('next_page')
-        .setLabel('次へ')
+        .setLabel('Next »')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(currentPage >= totalPages)
     );

@@ -3,11 +3,11 @@ import { loadDomains, removeDomain } from '../utils/domainUtils';
 
 export const removeDomainCommand = new SlashCommandBuilder()
   .setName('remove-domain')
-  .setDescription('監視対象のドメインを削除')
+  .setDescription('Remove a domain from monitoring')
   .addStringOption((option) =>
     option
       .setName('domain')
-      .setDescription('削除したいドメイン')
+      .setDescription('Remove domain')
       .setRequired(true)
   );
 
@@ -15,7 +15,7 @@ export async function runRemoveDomain(interaction: ChatInputCommandInteraction) 
   try {
     const guildId = interaction.guildId;
     if (!guildId) {
-      await interaction.reply('このコマンドはギルド内でのみ実行できます。');
+      await interaction.reply('This command can only be used in a guild.');
       return;
     }
 
@@ -23,12 +23,12 @@ export async function runRemoveDomain(interaction: ChatInputCommandInteraction) 
     const domains = await loadDomains(guildId);
 
     if (!domains.includes(domain)) {
-      await interaction.reply({ content: `\`${domain}\` は登録されていません。` });
+      await interaction.reply({ content: `\`${domain}\` does not exist.` });
       return;
     }
 
     await removeDomain(guildId, domain);
-    await interaction.reply(`ドメイン \`${domain}\` を削除しました。`);
+    await interaction.reply(`\`${domain}\` has been removed.`);
   } catch (error) {
     console.error('❌ remove-domain実行エラー:', error);
     process.stderr.write(`remove-domain実行エラー: ${error}\n`);

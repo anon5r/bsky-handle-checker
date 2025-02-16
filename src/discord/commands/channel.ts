@@ -14,18 +14,18 @@ import {
 
 export const channelCommand = new SlashCommandBuilder()
   .setName('channel')
-  .setDescription('通知チャンネルの設定')
+  .setDescription('Notification channel management')
   .setDefaultMemberPermissions(
     PermissionFlagsBits.Administrator | PermissionFlagsBits.ManageChannels
   )
   .addSubcommand(subcommand =>
     subcommand
       .setName('connect')
-      .setDescription('Botの通知先チャンネルを設定します')
+      .setDescription('Connect the notification channel for monitoring bot')
       .addChannelOption(option =>
         option
           .setName('channel')
-          .setDescription('通知先にしたいテキストチャンネル')
+          .setDescription('The notification channel')
           .setRequired(true)
           .addChannelTypes(ChannelType.GuildText)
       )
@@ -33,12 +33,12 @@ export const channelCommand = new SlashCommandBuilder()
   .addSubcommand(subcommand =>
     subcommand
       .setName('disconnect')
-      .setDescription('Botの通知先チャンネルを解除します')
+      .setDescription('Disconnect the notification channel')
   )
   .addSubcommand(subcommand =>
     subcommand
       .setName('current')
-      .setDescription('現在の通知先チャンネルを表示します')
+      .setDescription('Display the current notification channel')
   );
 
 export async function runChannelCommand(interaction: ChatInputCommandInteraction) {
@@ -47,7 +47,7 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
     const guildId = interaction.guildId;
     const guild = interaction.guild;
     if (!guildId || !guild) {
-      await interaction.reply('このコマンドはインストールされたサーバー内でのみ実行できます。');
+      await interaction.reply('This command can only be used in a guild.');
       return;
     }
 
@@ -55,34 +55,34 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
     switch (subcommand) {
       case 'connect': {
         if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
-          await interaction.reply('⚠️ チャンネルの管理権限が必要です。');
+          await interaction.reply('⚠️ You must have the Manage Channels permission.');;
           return;
         }
         const channel = interaction.options.getChannel('channel', true);
         await connectChannel(guildId, channel.id);
-        await interaction.reply(`通知先チャンネルを <#${channel.id}> に設定しました。`);
+        await interaction.reply(`<#${channel.id}> is now connected as the notification channel.`);
         break;
       }
       case 'disconnect': {
         if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
-          await interaction.reply('⚠️ チャンネルの管理権限が必要です。');
+          await interaction.reply('⚠️ You must have the Manage Channels permission.');;
           return;
         }
         await disconnectChannel(guildId);
-        await interaction.reply('通知先チャンネル設定を解除しました。');
+        await interaction.reply('The notification channel setting has been disconnected.');
         break;
       }
       case 'current': {
         if (!await isConnectChannelRegistered(guildId)) {
-          await interaction.reply('⚠️ 通知先チャンネルは設定されていません。');
+          await interaction.reply('⚠️ Notify channel is not connected.');
           break;
         }
         const channelId = await getConnectChannelId(guildId);
         const embed = new EmbedBuilder()
-          .setTitle('通知チャンネル設定')
+          .setTitle('Notify Channel')
           .setDescription(channelId
-            ? `現在の通知先: <#${channelId}>`
-            : '⚠️ 通知先チャンネルは設定されていません');
+            ? `Current: <#${channelId}>`
+            : '⚠️ Notify channel is not connected');
         await interaction.reply({ embeds: [embed] });
         break;
       }
