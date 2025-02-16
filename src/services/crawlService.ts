@@ -79,6 +79,10 @@ export class CrawlService {
       if (axios.isAxiosError(error)) {
         if (error.response?.data.message === 'Unable to resolve handle') {
           console.log(`Handle not found: ${domain}`);
+          return {
+            domain: domain,
+            available: false,
+          };
         } else {
           console.error(`API error <${domain}>: ${error.message}`, error.response?.data);
         }
