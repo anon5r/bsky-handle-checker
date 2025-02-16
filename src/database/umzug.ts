@@ -28,7 +28,7 @@ export const migrator = new Umzug({
     resolve: ({ name, path, context }) => {
       const migration = require(path!);
       return {
-        name,
+        name: name.replace(/\.[jt]s$/, ''),
         up: async () => migration.up(context),
         down: async () => migration.down(context),
       };

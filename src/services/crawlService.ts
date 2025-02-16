@@ -26,14 +26,14 @@ export class CrawlService {
           SELECT DISTINCT domain
           FROM domains AS d
           INNER JOIN guild_domains AS g ON (d.id = g.domain_id)
-          WHERE d.is_checked = 0
+          WHERE d.available = 0
           AND g.guild_id = ?
       `).all(guildId) as { domain: string }[];
     } else {
       domains = this.db.prepare(`
           SELECT DISTINCT domain
           FROM domains
-          WHERE is_checked = 0
+          WHERE available = 0
       `).all() as { domain: string }[];
     }
 
@@ -102,7 +102,7 @@ export class CrawlService {
       return;
     }
     const update = this.db.prepare(`
-      UPDATE domains SET is_checked = ?, found_at = ?, last_checked_at = CURRENT_TIMESTAMP
+      UPDATE domains SET available = ?, found_at = ?, last_checked_at = CURRENT_TIMESTAMP
       WHERE domain = ?
     `);
 

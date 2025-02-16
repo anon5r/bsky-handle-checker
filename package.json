@@ -13,6 +13,7 @@
     "guilds": "ts-node dist/discord/listGuilds.js",
     "import-domains": "node dist/scripts/importDomainsFromJson.js",
     "dev": "pnpm dlx ts-node ./src/index.ts",
+    "dev:migrate": "pnpm dlx ts-node src/database/migrate.ts",
     "dev:crawl": "pnpm dlx ts-node ./src/index.ts",
     "dev:bot": "pnpm dlx ts-node ./src/discord/bot.ts",
     "dev:guilds": "pnpm dlx ts-node ./src/discord/listGuilds.ts",
