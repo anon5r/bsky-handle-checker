@@ -9,7 +9,8 @@ import {
   connectChannel,
   disconnectChannel,
   getConnectChannelId,
-  isConnectChannelRegistered
+  isConnectChannelRegistered,
+  isChannelPublic
 } from '../utils/channelConfig';
 
 export const channelCommand = new SlashCommandBuilder()
@@ -58,9 +59,19 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
           await interaction.reply('⚠️ You must have the Manage Channels permission.');;
           return;
         }
-        const channel = interaction.options.getChannel('channel', true);
-        await connectChannel(guildId, channel.id);
-        await interaction.reply(`<#${channel.id}> is now connected as the notification channel.`);
+        // const channel = interaction.options.getChannel('channel', true);
+        const channelId = interaction.options.getChannel('channel', true).id;
+        const channel = await guild.channels.fetch(channelId);
+        if (!channel || channel.type !== ChannelType.GuildText) {
+          await interaction.reply('⚠️ Please provide a valid text channel.');
+          return;
+        }
+        if (!await isChannelPublic(channel)) {
+          await interaction.reply('⚠️ Could not use private text channel.');
+          return;
+        }
+        await connectChannel(guildId, channelId);
+        await interaction.reply(`<#${channelId}> is now connected as the notification channel.`);
         break;
       }
       case 'disconnect': {

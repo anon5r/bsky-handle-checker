@@ -1,10 +1,20 @@
-import {Client, Colors, EmbedBuilder, GatewayIntentBits, TextChannel} from 'discord.js';
+import {Client, Colors, EmbedBuilder, GatewayIntentBits, TextChannel, BaseGuildTextChannel} from 'discord.js';
 import Database from 'better-sqlite3';
 import path from 'path';
+import {isChannelPublic} from "../discord/utils/channelConfig";
 
 interface NotificationResult {
   success: boolean;
   error?: string;
+}
+
+interface NotifyDomainRecords {
+  guild_id: string;
+  channel_id: string;
+  domain_id: number;
+  domain_name: string;
+  did: string;
+  found_at: string,
 }
 
 export class NotificationService {
@@ -13,7 +23,10 @@ export class NotificationService {
 
   constructor() {
     this.client = new Client({
-      intents: [GatewayIntentBits.Guilds]
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages
+      ]
     });
 
     this.db = new Database(path.join(process.cwd(), 'data', 'database.sqlite'), {
@@ -57,17 +70,32 @@ export class NotificationService {
    * @param channelId
    */
   async sendNotification(content: string|EmbedBuilder, channelId: string): Promise<NotificationResult> {
+
     try {
       const channel = await this.client.channels.fetch(channelId);
-      if (!channel || !(channel instanceof TextChannel)) {
+
+      if (channel === null || !channel.isTextBased()) {
         throw new Error('Invalid channel or channel type');
       }
-      if (content instanceof EmbedBuilder) {
-        await channel.send({ embeds: [content] });
+      if ("guild" in channel) {
+        const guildChannel = channel as TextChannel;
+        if (!await isChannelPublic(guildChannel)) {
+          throw new Error('Channel is not public');
+        }
+
+        if (!('send' in channel)) {
+          throw new Error('Channel does not support sending messages');
+        }
+
+        if (content instanceof EmbedBuilder) {
+          await channel.send({embeds: [content]});
+        } else {
+          await channel.send(content);
+        }
+        return {success: true};
       } else {
-        await channel.send(content);
+        return {success: false};
       }
-      return { success: true };
     } catch (error) {
       return {
         success: false,
@@ -76,17 +104,19 @@ export class NotificationService {
     }
   }
 
-  private createMessage(domainName: string, did: string): EmbedBuilder {
+  private createMessage(records: NotifyDomainRecords): EmbedBuilder {
     return new EmbedBuilder()
       .setColor(Colors.Green)
-      .setTitle('Handle Detected')
-      .setDescription(`**${domainName}** has been detected.`)
+      .setTitle('**@${records.domain_name} has been detected')
+      .setDescription(`https://bsky.app/profile/${records.domain_name}`)
+      // .setURL(`https://bsky.app/profile/${records.domain_name}`)
       .setTimestamp()
       .addFields(
-        {name: 'Handle', value: `\`${domainName}\``, inline: true}
+        {name: 'Handle', value: `\`@${records.domain_name}\``},
+        {name: 'DID', value: `\`${records.did}\``}
       )
-      .addFields({name: 'DID', value: `\`${did}\``, inline: true})
-      .setURL(`https://bsky.app/profile/${domainName}`);
+      .addFields({name: 'AT-URI', value: `at://${records.did}/app.bsky.actor.profile/self`})
+      .setFooter({text: `${records.domain_name} on Bluesky`, iconURL: 'https://web-cdn.bsky.app/static/favicon-32x32.png'})
   }
 
 
@@ -103,25 +133,22 @@ export class NotificationService {
         gc.channel_id,
         gd.domain_id,
         d.domain as domain_name,
-        d.did
+        d.did,
+        d.found_at
       FROM guild_channels gc
       JOIN guild_domains gd ON gc.guild_id = gd.guild_id
       JOIN domains d ON gd.domain_id = d.id
       WHERE d.available = true 
       AND gd.notified = false
-    `).all() as {
-      guild_id: string;
-      channel_id: string;
-      domain_id: number;
-      domain_name: string;
-      did: string;
-    }[];
+    `).all() as NotifyDomainRecords[];
 
-    for (const guild of guildsToNotify) {
+    for (const record of guildsToNotify) {
       try {
+        // 通知内容を作成
+        const notificationContent = this.createMessage(record);
+
         // 通知メッセージを送信
-        const notificationContent = this.createMessage(guild.domain_name, guild.did);
-        const result = await this.sendNotification(notificationContent, guild.channel_id);
+        const result = await this.sendNotification(notificationContent, record.channel_id);
 
         if (result.success) {
           // 通知成功時にguild_domainsを更新
@@ -131,12 +158,12 @@ export class NotificationService {
               notified = 1,
               notified_at = datetime('now')
             WHERE guild_id = ? AND domain_id = ?
-          `).run(guild.guild_id, guild.domain_id);
+          `).run(record.guild_id, record.domain_id);
         } else {
-          console.error(`Failed to send notification to Guild ID: ${guild.guild_id}, Error: ${result.error}`);
+          console.error(`Failed to send notification to {Guild: ${record.guild_id}, Channel: ${record.channel_id}}, Error: "${result.error}"`);
         }
       } catch (error) {
-        console.error(`Error occurred during process. Guild ID: ${guild.guild_id}`, error);
+        console.error(`Error occurred during process. {Guild: ${record.guild_id}, Channel: ${record.channel_id}}`, error);
       }
     }
   }
