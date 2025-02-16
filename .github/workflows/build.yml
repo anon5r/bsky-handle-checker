@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      REGISTRY: ${{ vars.REGISTRY_URL }}
+      REGISTRY: ${{ vars.REGISTRY_FQDN }}
       IMAGE_NAME: bsky-handle-checker
 
     steps:
