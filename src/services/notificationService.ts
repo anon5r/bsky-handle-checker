@@ -107,15 +107,15 @@ export class NotificationService {
   private createMessage(records: NotifyDomainRecords): EmbedBuilder {
     return new EmbedBuilder()
       .setColor(Colors.Green)
-      .setTitle(`@${records.domain_name} has been detected`)
-      .setDescription(`https://bsky.app/profile/${records.domain_name}`)
-      // .setURL(`https://bsky.app/profile/${records.domain_name}`)
+      .setTitle(`@${records.domain_name}`)
+      .setDescription(`Monitored custom handle has been detected on Bluesky.`)
+      .setURL(`https://bsky.app/profile/${records.domain_name}`)
       .setTimestamp()
       .addFields(
         {name: 'Handle', value: `\`@${records.domain_name}\``},
         {name: 'DID', value: `\`${records.did}\``}
       )
-      .addFields({name: 'AT-URI', value: `at://${records.did}/app.bsky.actor.profile/self`})
+      .addFields({name: 'Profile page', value: `https://bsky.app/profile/${records.domain_name}`})
       .setFooter({text: `${records.domain_name} on Bluesky`, iconURL: 'https://web-cdn.bsky.app/static/favicon-32x32.png'})
   }
 
