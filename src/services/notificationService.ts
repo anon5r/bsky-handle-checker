@@ -1,4 +1,4 @@
-import {Client, Colors, EmbedBuilder, GatewayIntentBits, TextChannel, BaseGuildTextChannel} from 'discord.js';
+import {Client, Colors, EmbedBuilder, GatewayIntentBits, TextChannel} from 'discord.js';
 import Database from 'better-sqlite3';
 import path from 'path';
 import {isChannelPublic} from "../discord/utils/channelConfig";
@@ -122,7 +122,7 @@ export class NotificationService {
 
   async close(): Promise<void> {
     this.db.close();
-    this.client.destroy();
+    await this.client.destroy();
   }
 
   async notifyDomainAvailability(): Promise<void> {
