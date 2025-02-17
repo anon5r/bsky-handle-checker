@@ -1,12 +1,12 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { addDomain, isValidFQDN } from '../utils/domainUtils';
+import { addDomain, isValidFQDN, DomainError } from '../utils/domainUtils';
 
 export const addDomainCommand = new SlashCommandBuilder()
   .setName('add-domain')
   .setDescription('Add a domain to monitor')
   .addStringOption((option) =>
     option
-      .setName('fqdn')
+      .setName('domain')
       .setDescription('monitoring domain\'s FQDN')
       .setRequired(true)
   );
@@ -19,7 +19,7 @@ export async function runAddDomain(interaction: ChatInputCommandInteraction) {
       return;
     }
 
-    const domain = interaction.options.getString('fqdn', true).trim();
+    const domain = interaction.options.getString('domain', true).trim();
 
     if (!isValidFQDN(domain)) {
       await interaction.reply(`${domain} is not valid domain or FQDN\nEx: \`example.com\` or \`alice.example.com\``);
@@ -29,8 +29,16 @@ export async function runAddDomain(interaction: ChatInputCommandInteraction) {
     await addDomain(guildId, domain);
     await interaction.reply(`\`${domain}\` has been added.`);
   } catch (error) {
-    console.error('❌ add-domain実行エラー:', error);
-    process.stderr.write(`add-domain実行エラー: ${error}\n`);
-    throw error;
+    if (error instanceof DomainError) {
+      if (error.reasonCode === 'ALREADY_EXISTS') {
+        await interaction.reply(`⚠️ \`${error.domain}\` is already registered.`);
+      } else {
+        await interaction.reply('An error occurred while adding the domain.');
+      }
+    } else {
+      console.error('❌ add-domain実行エラー:', error);
+      process.stderr.write(`add-domain実行エラー: ${error}\n`);
+      throw error;
+    }
   }
 }

@@ -2,6 +2,16 @@ import { Statement } from 'better-sqlite3';
 import psl from "psl";
 import { db } from '../../database';
 
+export class DomainError extends Error {
+  constructor(
+    message: string,
+    public readonly domain?: string,
+    public readonly reasonCode?: string
+  ) {
+    super(message);
+    this.name = 'DomainError';
+  }
+}
 
 interface DomainId {
   id: number;
@@ -83,6 +93,14 @@ export async function addDomain(guildId: string, domain: string): Promise<void> 
     const result = insertStmt.get(domain);
     const domainId = result?.id ?? selectStmt.get(domain)?.id;
 
+    const linkSelectStmt = db.prepare(
+      'SELECT * FROM guild_domains WHERE domain_id = ? AND guild_id = ?'
+    ) as Statement<[number, string], DomainId>;
+    const linkRecord = linkSelectStmt.get(domainId as number, guildId);
+    if (linkRecord) {
+      throw new DomainError(`Domain ${domain} already exists in guild ${guildId}`,
+        domain, 'ALREADY_EXISTS');
+    }
     const linkStmt = db.prepare(`
         INSERT OR IGNORE INTO guild_domains (guild_id, domain_id)
         VALUES (?, ?)
