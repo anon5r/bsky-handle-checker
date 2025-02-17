@@ -41,18 +41,18 @@ export class CrawlService {
   }
 
   async processDomainsCheck(domains: string[]): Promise<CrawlResult[]> {
-    let count = 0;
     let crawlResults: CrawlResult[] = [];
-    for (const domain of domains) {
-      crawlResults.push(await this.checkDomainAvailability(domain));
+    const chunkSize = 20;
+    for (let i = 0; i < domains.length; i += chunkSize) {
+      const chunk = domains.slice(i, i + chunkSize);
+      const chunkResults = await Promise.all(
+        chunk.map(domain => this.checkDomainAvailability(domain))
+      );
+      crawlResults.push(...chunkResults);
+      await this.saveResults(chunkResults);
 
-      // ある程度処理したら一旦スリープする (20件ごと)
-      count++;
-      if (count % 20 === 0) {
-        // 20件ごとにDBに保存
-        await this.saveResults(crawlResults);
-        crawlResults = []
-        // 3秒待機
+      // 次のチャンクの前に待機（最後のチャンク以外）
+      if (i + chunkSize < domains.length) {
         await this.sleep(3000);
       }
     }
