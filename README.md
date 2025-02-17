@@ -25,6 +25,23 @@
 mkdir ./data
 ```
 
+### 3. Discordボットの設定
+1.[Discord Developer Portal](https://discord.com/developers/applications)で新しいアプリケーションを作成
+2. ボットに必要なパーミッション:
+    - Send Messages
+    - Embed Links
+
+3. `.env`ファイルに以下の項目を設定:
+``` env
+DISCORD_TOKEN=あなたのボットトークン
+DISCORD_CLIENT_ID=アプリケーションのクライアントID
+```
+4. ボットをサーバーに招待する際は、上記のパーミッションを付与してください。
+
+これらの権限がないと、ボットは正常に動作できない可能性があります。
+
+
+
 ## インストールと実行方法
 
 ### Node.js環境での実行
@@ -39,7 +56,13 @@ pnpm install
 ``` shell
 pnpm build
 ```
-2. 実行方法
+
+2. DBの初期化
+``` shell
+pnpm migrate
+```
+
+3. 実行方法
 
 - Discordボットの起動:
 ``` shell
@@ -67,7 +90,13 @@ pnpm start
 ``` shell
 docker compose build
 ```
-2. アプリケーションの起動
+
+2. DBの初期化
+``` shell
+docker compose run --rm -it app pnpm migrate
+```
+
+3. アプリケーションの起動
 ``` shell
 docker compose up
 ```
