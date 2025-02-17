@@ -107,7 +107,7 @@ export class NotificationService {
   private createMessage(records: NotifyDomainRecords): EmbedBuilder {
     return new EmbedBuilder()
       .setColor(Colors.Green)
-      .setTitle('**@${records.domain_name} has been detected')
+      .setTitle(`@${records.domain_name} has been detected`)
       .setDescription(`https://bsky.app/profile/${records.domain_name}`)
       // .setURL(`https://bsky.app/profile/${records.domain_name}`)
       .setTimestamp()
