@@ -3,6 +3,8 @@ import 'dotenv/config';
 
 async function main() {
   const guildId = process.argv[2]?.trim() ?? null;
+
+  console.log(`[${(new Date).toLocaleString()}] START Crawler`);
   const crawlService = new CrawlService();
 
   try {
@@ -23,6 +25,7 @@ async function main() {
     console.error('Error:', error);
   } finally {
     crawlService.close();
+    console.log(`[${(new Date).toLocaleString()}] DONE Crawler`);
   }
 }
 

@@ -3,6 +3,8 @@ import 'dotenv/config';
 
 async function main() {
   const guildId = process.argv[2]?.trim() ?? null;
+
+  console.log(`[${(new Date).toLocaleString()}] START Notify`);
   const notificationService = new NotificationService();
 
   try {
@@ -14,6 +16,7 @@ async function main() {
     console.error('Error:', error);
   } finally {
     await notificationService.close();
+    console.log(`[${(new Date).toLocaleString()}] DONE Notify`);
   }
 }
 main().catch(console.error);

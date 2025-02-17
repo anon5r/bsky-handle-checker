@@ -30,7 +30,7 @@ export class NotificationService {
     });
 
     this.db = new Database(path.join(process.cwd(), 'data', 'database.sqlite'), {
-      verbose: console.log
+      verbose: (process.env.DEBUG === 'true' ? console.log : undefined)
     });
   }
 
