@@ -11,13 +11,21 @@
     "migrate": "node dist/database/migrate.js",
     "migrate:create": "ts-node src/database/create-migration.ts",
     "bot": "node dist/discord/bot.js",
-    "guilds": "ts-node dist/discord/listGuilds.js",
+    "domains": "node dist/scripts/domainListing.js",
+    "domains:list": "node dist/scripts/domainListing.js --list",
+    "domains:list:available": "ts-node dist/scripts/domainListing.js --list --available",
+    "domains:list:unavailable": "node dist/scripts/domainListing.js --list --unavailable",
+    "guilds": "node dist/discord/listGuilds.js",
     "import-domains": "node dist/scripts/importDomainsFromJson.js",
     "dev": "pnpm dlx ts-node ./src/index.ts && pnpm dlx ts-node ./src/notify.ts",
     "dev:migrate": "pnpm dlx ts-node src/database/migrate.ts",
     "dev:crawl": "pnpm dlx ts-node ./src/index.ts",
     "dev:notify": "pnpm dlx ts-node ./src/notify.ts",
     "dev:bot": "pnpm dlx ts-node ./src/discord/bot.ts",
+    "dev:domains": "pnpm dlx ts-node src/scripts/domainListing.ts",
+    "dev:domains:list": "pnpm dlx ts-node src/scripts/domainListing.ts --list",
+    "dev:domains:list:available": "pnpm dlx ts-node src/scripts/domainListing.ts --list --available",
+    "dev:domains:list:unavailable": "pnpm dlx ts-node src/scripts/domainListing.ts --list --unavailable",
     "dev:guilds": "pnpm dlx ts-node ./src/discord/listGuilds.ts",
     "dev:import-domains": "pnpm dlx ts-node src/scripts/importDomainsFromJson.ts"
   },
@@ -29,7 +37,6 @@
   "dependencies": {
     "@discordjs/builders": "^1.10.1",
     "@discordjs/rest": "^2.4.3",
-    "@types/psl": "^1.1.3",
     "axios": "^1.7.9",
     "better-sqlite3": "^11.8.1",
     "discord-api-types": "^0.37.119",
@@ -37,6 +44,7 @@
     "dotenv": "^16.4.7",
     "path": "^0.12.7",
     "psl": "^1.15.0",
+    "table": "^6.9.0",
     "umzug": "^3.8.2"
   },
   "devDependencies": {
