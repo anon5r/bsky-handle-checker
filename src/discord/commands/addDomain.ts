@@ -6,8 +6,8 @@ export const addDomainCommand = new SlashCommandBuilder()
   .setDescription('Add a domain to monitor')
   .addStringOption((option) =>
     option
-      .setName('FQDN')
-      .setDescription('monitoring domain')
+      .setName('fqdn')
+      .setDescription('monitoring domain\'s FQDN')
       .setRequired(true)
   );
 
@@ -19,7 +19,7 @@ export async function runAddDomain(interaction: ChatInputCommandInteraction) {
       return;
     }
 
-    const domain = interaction.options.getString('domain', true).trim();
+    const domain = interaction.options.getString('fqdn', true).trim();
 
     if (!isValidFQDN(domain)) {
       await interaction.reply(`${domain} is not valid domain or FQDN\nEx: \`example.com\` or \`alice.example.com\``);
