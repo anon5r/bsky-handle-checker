@@ -32,9 +32,6 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      fs-extra:
-        specifier: ^11.3.0
-        version: 11.3.0
       path:
         specifier: ^0.12.7
         version: 0.12.7
