@@ -146,6 +146,47 @@ export async function removeDomain(guildId: string, domain: string): Promise<voi
 }
 
 /**
+ * ドメインを全て削除する
+ * @param guildId
+ */
+export async function clearAllDomains(guildId: string): Promise<void> {
+  db.transaction(() => {
+    // このギルドのみが使っているドメインを取得する
+    const domainsStmt = db.prepare(`
+      SELECT d.domain
+        FROM domains d
+        JOIN guild_domains gd ON d.id = gd.domain_id
+      WHERE gd.guild_id = ?
+    `) as Statement<[string], DomainResult>;
+    if (!domainsStmt) {
+      return;
+    }
+    const domains = domainsStmt.all(guildId);
+    if (domains.length === 0) {
+      return;
+    }
+    const deleteStmt = db.prepare(`
+      DELETE FROM guild_domains
+      WHERE guild_id = ?
+    `) as Statement<[string], void>;
+    deleteStmt.run(guildId);
+    // 紐付かなくなったドメインを削除する
+    deleteNoLinkedDomains();
+  })();
+}
+
+/**
+ * どのギルドにもデータが紐付かないドメインを削除する
+ */
+async function deleteNoLinkedDomains(): Promise<void> {
+  db.exec(`
+      DELETE FROM domains
+      WHERE id NOT IN (SELECT domain_id FROM guild_domains);
+  `);
+  }
+
+
+/**
  * 有効なFQDNかどうかをチェックする
  * @param domain
  */

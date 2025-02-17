@@ -1,7 +1,9 @@
-import { Client, GatewayIntentBits, REST, Routes, Interaction } from 'discord.js';
+import { Client, GatewayIntentBits, REST, Routes, Events, Guild, Interaction } from 'discord.js';
 import dotenv from 'dotenv';
 import { commandDefs, commandHandlers } from './commands';
 import { handlePageButton } from './commands/listDomains';
+import {disconnectChannel} from "./utils/channelConfig";
+import {clearAllDomains} from "./utils/domainUtils";
 
 dotenv.config();
 
@@ -31,11 +33,13 @@ async function registerCommands() {
   }
 }
 
+// クライアントの準備
 client.once('ready', async () => {
   console.log(`Logged in as "${client.user?.tag}"`);
   await registerCommands();
 });
 
+// インタラクションのハンドリング
 client.on('interactionCreate', async (interaction: Interaction) => {
   if (interaction.isChatInputCommand()) {
     const handler = commandHandlers[interaction.commandName as keyof typeof commandHandlers];
@@ -53,6 +57,16 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     }
   }
 });
+
+// サーバーからキックされた時
+client.on(Events.GuildDelete, async (guild: Guild) => {
+  console.log(`ボットはサーバーから削除されました: ${guild.name} (ID: ${guild.id})`);
+  // 通知チャンネルの切断
+  await disconnectChannel(guild.id);
+  // データベースからの削除
+  await clearAllDomains(guild.id);
+});
+
 
 // エラーイベントのハンドリングを追加
 client.on('error', (error) => {
