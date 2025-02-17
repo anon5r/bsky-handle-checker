@@ -55,11 +55,6 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
 
     switch (subcommand) {
       case 'connect': {
-        if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
-          await interaction.reply('⚠️ You must have the Manage Channels permission.');;
-          return;
-        }
-        // const channel = interaction.options.getChannel('channel', true);
         const channelId = interaction.options.getChannel('channel', true).id;
         const channel = await guild.channels.fetch(channelId);
         if (!channel || channel.type !== ChannelType.GuildText) {
@@ -75,10 +70,6 @@ export async function runChannelCommand(interaction: ChatInputCommandInteraction
         break;
       }
       case 'disconnect': {
-        if (!guild.members.me?.permissions.has(PermissionFlagsBits.ManageChannels)) {
-          await interaction.reply('⚠️ You must have the Manage Channels permission.');;
-          return;
-        }
         await disconnectChannel(guildId);
         await interaction.reply('The notification channel setting has been disconnected.');
         break;
