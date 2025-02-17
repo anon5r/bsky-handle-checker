@@ -13,7 +13,7 @@
     "bot": "node dist/discord/bot.js",
     "domains": "node dist/scripts/domainListing.js",
     "domains:list": "node dist/scripts/domainListing.js --list",
-    "domains:list:available": "ts-node dist/scripts/domainListing.js --list --available",
+    "domains:list:available": "node dist/scripts/domainListing.js --list --available",
     "domains:list:unavailable": "node dist/scripts/domainListing.js --list --unavailable",
     "guilds": "node dist/discord/listGuilds.js",
     "import-domains": "node dist/scripts/importDomainsFromJson.js",
