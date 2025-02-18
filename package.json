@@ -16,6 +16,7 @@
     "domains:list:available": "node dist/scripts/domainListing.js --list --available",
     "domains:list:unavailable": "node dist/scripts/domainListing.js --list --unavailable",
     "guilds": "node dist/discord/listGuilds.js",
+    "guilds:domains": "node dist/scripts/reportGuildDomains.js",
     "import-domains": "node dist/scripts/importDomainsFromJson.js",
     "dev": "pnpm dlx ts-node ./src/index.ts && pnpm dlx ts-node ./src/notify.ts",
     "dev:migrate": "pnpm dlx ts-node src/database/migrate.ts",
@@ -27,6 +28,7 @@
     "dev:domains:list:available": "pnpm dlx ts-node src/scripts/domainListing.ts --list --available",
     "dev:domains:list:unavailable": "pnpm dlx ts-node src/scripts/domainListing.ts --list --unavailable",
     "dev:guilds": "pnpm dlx ts-node ./src/discord/listGuilds.ts",
+    "dev:guilds:domains": "pnpm dlx ts-node src/scripts/reportGuildDomains.ts",
     "dev:import-domains": "pnpm dlx ts-node src/scripts/importDomainsFromJson.ts"
   },
   "workspaces": {
@@ -65,3 +67,4 @@
     ]
   }
 }
+
