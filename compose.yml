@@ -1,5 +1,5 @@
 services:
-  app:
+  bot:
     build:
       context: .
     image: bsky-handle-checker:latest
@@ -8,4 +8,45 @@ services:
       - .:/app
       - ./data:/app/data
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
+    command:
+      - dev:bot
+
+  crawler:
+    build:
+      context: .
+    image: bsky-handle-checker:latest
+    container_name: bluesky-checker
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+    command:
+      - dev:crawl
+
+  notifier:
+    build:
+      context: .
+    image: bsky-handle-checker:latest
+    container_name: bluesky-checker
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+    command:
+      - dev:notify
+
+  migrate:
+    build:
+      context: .
+    image: bsky-handle-checker:latest
+    container_name: bluesky-checker
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=development
+    command:
+      - dev:migrate
