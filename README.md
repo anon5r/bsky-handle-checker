@@ -27,20 +27,20 @@ mkdir ./data
 ```
 
 ## 3. Discordボットの設定
-1.[Discord Developer Portal](https://discord.com/developers/applications)で新しいアプリケーションを作成
-2. ボットのスコープ:
-    - `bot`
-    - `applications.commands`
-3. ボットに必要なパーミッション: 18432
-    - **Send Messages**
-    - **Embed Links**
-3. `.env`ファイルに以下の項目を設定:
+
+1. [Discord Developer Portal](https://discord.com/developers/applications)で新しいアプリケーションを作成
+2. `.env`ファイルに以下の項目を設定:
 ``` env
 DISCORD_TOKEN=あなたのボットトークン
 DISCORD_CLIENT_ID=アプリケーションのクライアントID
 ```
-4. ボットをサーバーに招待する際は、上記のパーミッションを付与してください。
-
+3. ボットのスコープ:
+    - `bot`
+    - `applications.commands`
+4. ボットに必要なパーミッション: 18432
+    - **Send Messages**
+    - **Embed Links**
+ボットをサーバーに招待する際は、上記のパーミッションを付与してください。
 これらの権限がないと、ボットは正常に動作できない可能性があります。
 
 
