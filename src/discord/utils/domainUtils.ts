@@ -57,7 +57,7 @@ export async function loadDomainsWithPagination(guildId: string, page: number, i
       SELECT d.domain
       FROM domains d
                JOIN guild_domains gd ON d.id = gd.domain_id
-      WHERE gd.guild_id = ?
+      WHERE gd.guild_id = ? AND d.available = 0
       ORDER BY d.domain
       LIMIT ? OFFSET ?
   `) as Statement<[string, number, number], DomainResult>;
