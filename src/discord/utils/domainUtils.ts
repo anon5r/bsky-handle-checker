@@ -50,7 +50,7 @@ export async function loadDomainsWithPagination(guildId: string, page: number, i
       SELECT COUNT(DISTINCT d.domain) as total
       FROM domains d
                JOIN guild_domains gd ON d.id = gd.domain_id
-      WHERE gd.guild_id = ?
+      WHERE gd.guild_id = ? AND d.available = 0
   `) as Statement<[string], { total: number }>;
 
   const domainsStmt = db.prepare(`
