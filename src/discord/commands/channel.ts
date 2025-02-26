@@ -16,9 +16,7 @@ import {
 export const channelCommand = new SlashCommandBuilder()
   .setName('channel')
   .setDescription('Notification channel management')
-  .setDefaultMemberPermissions(
-    PermissionFlagsBits.Administrator | PermissionFlagsBits.ManageChannels
-  )
+  .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
   .addSubcommand(subcommand =>
     subcommand
       .setName('connect')
