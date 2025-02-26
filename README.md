@@ -3,7 +3,12 @@ Bluesky Handle Checker
 
 # 概要
 
-このツールは、Bluesky上での特定ドメインのハンドル存在確認を行うアプリケーションです。Discord経由で管理が可能で、結果はDiscordチャンネルに通知されます。データの永続化にはSQLiteを使用しています。
+このツールは、Bluesky上での特定ドメインのハンドル存在確認を行うアプリケーションです。
+Discord経由で管理が可能で、結果はDiscordチャンネルに通知されます。
+データの永続化にはSQLiteを使用しています。
+
+
+**[Botの使い方についてはこちら](./docs/how-to-use-discord-bot.md)**
 
 # 必要要件
 
@@ -139,9 +144,7 @@ docker run --env-file .env -v ./data:/app/data --name bsky-checker ghcr.io/anon5
 > [!NOTE]
 > ドメインが実際にアカウントのハンドルとして設定されているかどうかの検証は行いません
 
-## シーケンス
-
-- [シーケンス図](./docs/sequence.md)
+### [シーケンス図](./docs/sequence.md)
 
 # 技術スタック
 

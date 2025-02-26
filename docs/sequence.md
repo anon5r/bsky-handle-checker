@@ -6,8 +6,8 @@ sequenceDiagram
     participant Bot
     participant DB as Database
     participant Crawler
-    participant BskyAPI
     participant Notifier
+    participant BskyAPI
 
     par Domain monitoring start
         %% Domain Monitoring Start Flow
@@ -31,9 +31,9 @@ sequenceDiagram
         DB-->>-Crawler: Domain list
         loop Each domain batch
             Crawler->>+BskyAPI: Check handle
-            BskyAPI-->>+Crawler: Response
-            Crawler->>+DB: Update available status
+            BskyAPI-->>-Crawler: Response
         end
+        Crawler->>+DB: Update available status
     end
 
     %% Notification Flow
