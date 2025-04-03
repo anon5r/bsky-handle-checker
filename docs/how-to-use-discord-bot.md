@@ -1,57 +1,57 @@
-Discord Bot の使い方
+How to Use the Discord Bot
 ===================
 
-## Discord Bot の招待
+## Inviting the Discord Bot
 
-Discord Developers Portalから登録したBotをDiscordサーバーに招待します。
+Invite the Bot registered on the Discord Developers Portal to your Discord server.
 
-あるいは、[こちらのリンク](https://discord.com/oauth2/authorize?client_id=1317435746877050890&permissions=18432&integration_type=0&scope=bot+applications.commands)からBotアカウントを招待してください。
+Alternatively, you can invite the Bot account from [this link](https://discord.com/oauth2/authorize?client_id=1317435746877050890&permissions=18432&integration_type=0&scope=bot+applications.commands).
 
 ![Discord bot account](https://github.com/user-attachments/assets/af06a450-b860-44f2-89ac-214a51f610fd)
 
-Botの招待にはDiscordサーバーの管理者権限が必要です。
+Administrator permissions for the Discord server are required to invite the Bot.
 
 
-## Botのコマンド一覧
+## List of Bot Commands
 
-インストールすると以下のコマンドを使用できます。
+The following commands are available after installation:
 
 `/add-domain [domain]`
 ---
-監視したいドメインを登録します。登録したドメインがカスタムハンドル設定として有効になると通知されます。
+Register a domain you want to monitor. You will be notified when the registered domain becomes valid as a custom handle setting.
 
 `/remove-domain [domain]`
 ---
-ドメインを監視対象から削除します。
+Remove a domain from the monitoring list.
 
 `/list-domains`
 ---
-登録されているドメイン一覧を表示します。
+Display a list of registered domains.
 
 `/channel connect [channel]`
 ---
-結果通知を受け取るチャンネルを設定または変更します。
-設定できるチャンネルはパブリックなテキストチャンネルである必要があります。
+Set or change the channel to receive result notifications.
+The channel must be a public text channel.
 
 >[!NOTE]
-> このコマンドはサーバー管理者権限またはチャンネル管理権限が必要です。
+> This command requires server administrator permissions or channel management permissions.
 
 `/channel disconnect`
 ---
-結果通知を受け取るチャンネルを解除します。
+Disconnect the channel that receives result notifications.
 
 >[!NOTE]
-> このコマンドはサーバー管理者権限またはチャンネル管理権限が必要です。
+> This command requires server administrator permissions or channel management permissions.
 
 `/channel currnet`
 ---
-現在設定されているチャンネル名を表示します。
+Display the name of the currently set channel.
 
 >[!NOTE]
-> このコマンドはサーバー管理者権限またはチャンネル管理権限が必要です。
+> This command requires server administrator permissions or channel management permissions.
 
 
-## 通知の例
+## Notification Example
 
-監視対象に設定されたドメインがカスタムハンドルとして見つかると、以下のスクリーンショットのような通知が、設定したチャンネルに送信されます。
-![通知サンプル](https://github.com/user-attachments/assets/457fe953-32a0-4d0b-9aa9-3d03d69953b6)
+When a domain set as a monitoring target is found as a custom handle, a notification like the screenshot below will be sent to the configured channel.
+![Notification sample](https://github.com/user-attachments/assets/457fe953-32a0-4d0b-9aa9-3d03d69953b6)

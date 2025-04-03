@@ -13,7 +13,12 @@ const itemsPerPage = 30;
 
 export const listDomainsCommand = new SlashCommandBuilder()
   .setName('list-domains')
-  .setDescription('List of monitored domains');
+  .setDescription('List of monitored domains without found domains')
+  .addChannelOption(option =>
+    option.setName('all')
+      .setRequired(false)
+      .setDescription('List of all added domains')
+  );
 
 /**
  * /list-domains 実行時の処理
